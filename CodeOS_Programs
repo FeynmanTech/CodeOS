@@ -1,0 +1,266 @@
+
+--# Main
+-- Windows
+
+-- Use this function to perform your initial setup
+function setup()
+    print("Hello World!")
+end
+
+-- This function gets called once every frame
+function draw()
+    -- This sets a dark background color 
+    background(40, 40, 50)
+
+    -- This sets the line thickness
+    strokeWidth(5)
+
+    -- Do your drawing here
+    drawWindows()
+end
+
+
+--# ColorCycle
+local floor = math.floor
+
+ColorCycle = window(100, 100, 300, 200, "Background Color Cycle Demo")
+
+ColorCycle.i = image(30, 30)
+for x=1,30 do
+    for y=1,30 do
+        local r = (math.sin(math.rad(x / 30 * 360)) + 1) * 127
+        local g = (math.sin(math.rad(x / 30 * 360 + 120)) + 1) * 127
+        local b = (math.sin(math.rad(x / 30 * 360 + 240)) + 1) * 127
+        ColorCycle.i:set(x, y, color(r, g, b))
+    end
+end
+ColorCycle.main = function()
+    local s = 75
+    local r = math.sin(math.rad(ElapsedTime * s)) * 127 + 127
+    local g = math.sin(math.rad(ElapsedTime * s + 120)) * 127 + 127
+    local b = math.sin(math.rad(ElapsedTime * s + 240)) * 127 + 127
+    background(r, g, b)
+    if b < 128 or r < 128 and g > 128 then
+        fill(0)
+    else
+        fill(255)
+    end
+    text("Current Color: " .. floor(r) .. "," .. floor(g) .. "," .. floor(b), 10, 10)
+end
+--# ShadeCycle
+ShadeCycle = window(640, 100, 300, 200, "Background Shade Cycle Demo")
+
+ShadeCycle.i = image(30, 30)
+for x=1,30 do
+    for y=1,30 do
+        local a = x / 30 * 255
+        ShadeCycle.i:set(x, y, color(a))
+    end
+end
+ShadeCycle.main = function()
+    local s = 75
+    local c = (math.sin(math.rad(ElapsedTime * s)) + 1) * 128
+    background(c)
+end
+
+--ShadeCycle.active = true
+--# TextEdit
+edit = window(500, 70, 300, 200, "Text Editor")
+edit.i = image(27, 27)
+setContext(edit.i)
+font("HelveticaNeue-Light")
+fontSize(28)
+textMode(CENTER)
+fill(0)
+background(255)
+text("a", 10, 13)
+setContext()
+
+local te = edit:textscroll(10, 10, edit.w - 20, edit.h - 20)
+
+function edit.main()
+    te:draw()
+end
+--edit.active = true
+--# SketchPad
+sketch = window(100, 400, 300, 300, "Sketch Pad")
+sketch.i = readImage("Documents:brush")
+
+sketch.bgimage = image(300,300)
+setContext(sketch.bgimage)
+background(255)
+setContext()
+
+sketch.main = function()
+    smooth()
+    if CurrentTouch.state == BEGAN then
+        spriteMode(CORNER)
+        sprite(sketch.bgimage, 0, 0)
+    elseif sketch.active or 1 then
+        --background(255)
+        setContext(sketch.bgimage)
+        stroke(0)
+        strokeWidth(2)
+        clip()
+        local m = modelMatrix()
+        resetMatrix()
+        line(sketch.pmousex, sketch.pmousey, sketch.mousex, sketch.mousey)
+        sketch.clip()
+        sketch.translate()
+        setContext()
+        spriteMode(CORNER)
+        sprite(sketch.bgimage, 0, 0)
+    end
+end
+
+sketch.onclose = function()
+    sketch.bgimage = image(300,300)
+end
+
+--edit.active = true
+--# Debugger
+dev = window(450, 100, 150, 50, "Debug")
+dev.i = readImage("Documents:gear")
+
+local afps, t, lt = 60, nil, os.clock()
+local fps, avg = {60}, 30
+
+local f, tfps = 0, 0
+---[[
+dev.main = function()
+    tfps = 0
+    for n = f - avg > 0 and f - avg or 1, f do
+        tfps = tfps + fps[n] 
+    end
+    fill(0)
+    text("FPS: " .. math.floor(tfps / avg), 20, 20)
+end
+
+dev.background = function()
+    local t=os.clock()
+    table.insert(fps, 1/(t-lt))
+    lt=t
+    f = f + 1
+end
+--dev.main()
+--]]
+
+--# uitest
+gui = window(450, 200, 300, 200, "UI Testing")
+gui.i = readImage("Documents:ui")
+
+local b1 = gui:button(10, 10, 100, 16, "Start Debugger", function() dev:show() end)
+local t1 = gui:textedit(120, 10, 100, 100)
+
+gui.main = function()
+    b1:draw()
+    t1:draw()
+end
+--# ccConfig
+--[[
+###########################################
+##Codea Community Project Config Settings##
+###########################################
+
+##You can use # to comment out a line
+##Use 1 for true and 0 for false
+
+
+###########################################
+#       Add project info below            #
+#==========================================
+ProjectName: CodeOS_Programs
+Version: 3.85 Beta
+Comments: This program has to be saved as CodeOS_Programs so the main program can find it.
+Author: FLCode
+##License Info: http://choosealicense.com
+##Supported Licneses: MIT, GPL, Apache, NoLicense
+License: NoLicense
+#==========================================
+
+
+###########################################
+#                Settings                 #
+[Settings]=================================
+##Codea Community Configuration settings
+##Format: Setting state
+
+Button 0
+NotifyCCUpdate 1
+ResetUserOption 1
+AddHeaderInfo 1
+CCFOLDER alpha
+
+[/Settings]================================
+
+
+
+###########################################
+#              Screenshots                #
+[Screenshots]==============================
+##Screenshots from your project.
+##Format: url
+##Example: http://www.dropbox.com/screenshot.jpg
+
+
+[/Screenshots]=============================
+
+
+
+###########################################
+#                   Video                 #
+[Video]====================================
+##Link to a YouTube.com video.
+##Format: url
+##Example: http://www.youtube.com/videolink
+
+
+[/Video]===================================
+
+
+
+###########################################
+#              Dependencies               #
+[Dependencies]=============================
+##Include the names of any dependencies here
+##Format: Dependency
+##Example: Codea Community
+
+
+[/Dependencies]============================
+
+
+
+############################################
+#                   Tabs                   #
+[Tabs]======================================
+##Select which tabs are to be uploaded.
+##Keyword 'not' excludes a tab or tabs. Keyword 'add' includes a tab or tabs.
+##not * will exclude all tabs to allow for individual selection
+##not *tab1 will look for any tab with tab1 on the end.
+##not tab1* will look for any tab with tab1 at the beginning.
+##Format: (add/not)(*)tab(*)
+##Example: not Main --this will remove main.
+##Example: not *tab1 --this will remove any tab with "tab1" on the end.
+##Example: add Main --This will add Main back in.
+not setdrawwindows
+
+
+
+[/Tabs]=====================================
+
+
+
+#############################################
+#                  Assets                   #
+[Assets]=====================================
+##Directory, path and url info for any assets besides the standard Codea assets.
+##Format: Folder:sprite URL
+##Example: Documents:sprite1 http://www.somewebsite.com/img.jpg
+Documents:Brush http://files.brilliant-minds.tk/Stocks/CodeOS/Sketchpad.png
+Documents:Gear http://www.files.brilliant-minds.tk/Stocks/priv/gear.png
+Documents:Ui http://www.files.brilliant-minds.tk/Stocks/priv/ui.png
+
+
+[/Assets]====================================
+]]
